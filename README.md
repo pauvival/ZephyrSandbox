@@ -9,12 +9,21 @@ The goal is not to build a single-purpose application, but to experiment with th
 ## What I'm Exploring
 
 Zephyr RTOS fundamentals and architecture
+
 DeviceTree and hardware configuration
+
 GPIO, LEDs and buttons
+
 Sensor integration and data acquisition
+
 Custom and out-of-tree drivers
+
 Threads, work queues and synchronization
+
 Logging, shell and runtime diagnostics
+
 BLE / wireless connectivity
+
 Firmware update mechanisms and FOTA
+
 Secure boot and firmware integrity
