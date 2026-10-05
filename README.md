@@ -6,7 +6,7 @@ This project is a hands-on exploration of modern embedded firmware architecture 
 
 The goal is not to build a single-purpose application, but to experiment with the building blocks that make up real-world embedded systems.
 
-##What I'm Exploring
+## What I'm Exploring
 
 Zephyr RTOS fundamentals and architecture
 DeviceTree and hardware configuration
