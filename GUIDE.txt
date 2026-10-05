@@ -1,0 +1,17 @@
+//Create workspace and virtual environment
+mkdir C:\zephyr\workspace_ncs
+cd C:\zephyr\workspace_ncs
+python -m venv .venv
+.venv\Scripts\activate
+
+//Install west and clone manifest repo
+pip install west
+git clone https://github.com/pauvival/ZephyrSandbox.git
+
+//Init west and Download dependencies
+west init -l ZephyrSandbox
+west update
+west zephyr-export
+west packages pip --install
+
+//SDK version 1.0.1 must be downloaded and setup.cmd executed
