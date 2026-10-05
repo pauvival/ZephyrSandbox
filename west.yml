@@ -1,0 +1,29 @@
+manifest:
+  version: 1.0
+  
+  remotes:
+    - name: ncs
+      url-base: https://github.com/nrfconnect
+    - name: pauvival
+      url-base: https://github.com/pauvival
+
+  projects:
+    - name: nrf
+      repo-path: sdk-nrf
+      remote: ncs
+      revision: v3.4.1
+      import: true
+      
+    - name: ZephyrSandboxBoards
+      remote: pauvival
+      revision: main
+      path: ZephyrSandboxBoards
+      
+    - name: ZephyrSandboxTools
+      remote: pauvival
+      revision: main
+      path: guiway_pc
+      
+  self:
+    path: ZephyrSandbox 
+
