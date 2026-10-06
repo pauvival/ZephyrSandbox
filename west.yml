@@ -22,7 +22,7 @@ manifest:
     - name: ZephyrSandboxTools
       remote: pauvival
       revision: main
-      path: guiway_pc
+      path: ZephyrSandboxTools
       
   self:
     path: ZephyrSandbox 

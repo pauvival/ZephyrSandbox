@@ -15,3 +15,5 @@ west zephyr-export
 west packages pip --install
 
 //SDK version 1.0.1 must be downloaded and setup.cmd executed
+
+west build -p always -b nrf52840dk/nrf52840 ZephyrSandbox\app
