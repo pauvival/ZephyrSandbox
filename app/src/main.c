@@ -22,6 +22,21 @@
 LOG_MODULE_REGISTER(app,LOG_LEVEL_DBG);
 
 
+void offload_led_control(struct k_work *work_term)
+{
+
+	LOG_INF("I am offload_led_control()\n");
+	if(gatt_led_value == 0)
+	{
+		leds_reset_all();
+	}
+	else
+	{
+		leds_set_all();
+	}
+}
+
+K_WORK_DEFINE(my_work, offload_led_control);
 
 int main(void)
 {
@@ -29,19 +44,14 @@ int main(void)
 
 	leds_init();
 	init_BLE();
+
 	
 	while (1) 
 	{
-		if(gatt_led_value == 0)
-		{
-			leds_reset_all();
-		}
-		else
-		{
-			leds_set_all();
-		}
-
+		
+		k_work_submit(&my_work);
 		LOG_INF("LED CONTROL THREAD!\n");
+		LOG_INF("Now I have nothing to do :(\n");
 
 		k_msleep(1000);
 	}
