@@ -1,6 +1,9 @@
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/gpio.h>
+#include <zephyr/logging/log.h>
 #include "led_driver.h"
+
+LOG_MODULE_REGISTER(led_driver,LOG_LEVEL_DBG);
 
 //Identify the parent devicetree node
 #define LED_NODE DT_PATH(leds)
@@ -22,25 +25,25 @@ static const struct gpio_dt_spec leds[] = {
 uint32_t leds_init(void)
 {
     if (NUM_LEDS == 0) {
-        printk("No LEDs configured in Devicetree.");
+        LOG_ERR("No LEDs configured in Devicetree.");
         return -ENODEV;
     }
 
     for (uint32_t i = 0; i < NUM_LEDS; i++) {
         if (!gpio_is_ready_dt(&leds[i])) {
-            printk("GPIO device %s not ready for LED index %u", 
+            LOG_ERR("GPIO device %s not ready for LED index %u", 
                     leds[i].port->name, i);
             return -ENODEV;
         }
 
         uint32_t ret = gpio_pin_configure_dt(&leds[i], GPIO_OUTPUT_INACTIVE);
         if (ret < 0) {
-            printk("Failed to configure GPIO for LED index %u (err: %d)", i, ret);
+            LOG_ERR("Failed to configure GPIO for LED index %u (err: %d)", i, ret);
             return ret;
         }
     }
 
-    printk("Successfully initialized %u LEDs", NUM_LEDS);
+    LOG_INF("Successfully initialized %u LEDs", NUM_LEDS);
     return 0;
 }
 
@@ -50,7 +53,7 @@ uint32_t leds_init(void)
 uint32_t led_set_state(uint32_t index)
 {
      if (index >= NUM_LEDS) {
-        printk("Index %u out of bounds (max: %u)", index, NUM_LEDS - 1);
+        LOG_ERR("Index %u out of bounds (max: %u)", index, NUM_LEDS - 1);
         return -EINVAL;
     }
 
@@ -73,7 +76,7 @@ void leds_set_all(void)
 uint32_t led_reset_state(uint32_t index)
 {
      if (index >= NUM_LEDS) {
-        printk("Index %u out of bounds (max: %u)", index, NUM_LEDS - 1);
+        LOG_ERR("Index %u out of bounds (max: %u)", index, NUM_LEDS - 1);
         return -EINVAL;
     }
 
@@ -96,7 +99,7 @@ void leds_reset_all(void)
 uint32_t led_toggle(uint32_t index)
 {
     if (index >= NUM_LEDS) {
-        printk("Index %u out of bounds (max: %u)", index, NUM_LEDS - 1);
+        LOG_ERR("Index %u out of bounds (max: %u)", index, NUM_LEDS - 1);
         return -EINVAL;
     }
 

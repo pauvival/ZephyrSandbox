@@ -5,7 +5,10 @@
 #include <zephyr/bluetooth/gatt.h>
 #include <zephyr/bluetooth/uuid.h>
 #include <zephyr/bluetooth/addr.h>
+#include <zephyr/logging/log.h>
 #include "bluetooth_mg.h"
+
+LOG_MODULE_REGISTER(bluetooth_mg,LOG_LEVEL_DBG);
 
 //BLE
 
@@ -41,15 +44,15 @@ uint16_t gatt_led_value;
 
 static ssize_t write_led (struct bt_conn *conn, const struct bt_gatt_attr *attr, const void *buf, uint16_t len, uint16_t offset, uint8_t flags)
 {
-    printk("Attribute write, handle: %u, conn: %p\n", attr->handle, (void *)conn);
+    LOG_INF("Attribute write, handle: %u, conn: %p\n", attr->handle, (void *)conn);
 
 	if (len != sizeof(uint16_t)) {
-		printk("Write led: Incorrect data length\n");
+		LOG_ERR("Write led: Incorrect data length\n");
 		return BT_GATT_ERR(BT_ATT_ERR_INVALID_ATTRIBUTE_LEN);
 	}
 
 	if (offset != 0) {
-		printk("Write led: Incorrect data offset\n");
+		LOG_ERR("Write led: Incorrect data offset\n");
 		return BT_GATT_ERR(BT_ATT_ERR_INVALID_OFFSET);
 	}
 
@@ -57,7 +60,7 @@ static ssize_t write_led (struct bt_conn *conn, const struct bt_gatt_attr *attr,
     //Assumes central device send data in little-endian format (the standard way)
 	uint16_t val = *((uint16_t *)buf);
     gatt_led_value = val;
-    printk("Received value %d", val);
+    LOG_INF("Received value %d", val);
 
 	return len;
 }
@@ -97,33 +100,33 @@ static const struct bt_data sd[] = {
 void connected_cb(struct bt_conn *conn, uint8_t err)
 {
     if (err) {
-        printk("Connection error %d\n", err);
+        LOG_ERR("Connection error %d\n", err);
         return;
     }
-    printk("Connected");
+    LOG_INF("Connected");
     my_conn = bt_conn_ref(conn);
 
     err = bt_conn_set_security(conn, BT_SECURITY_L2); //request just works security
     if (err) {
-        printk("Failed to set security (err %d)\n", err);
+        LOG_ERR("Failed to set security (err %d)\n", err);
     }
 
 	struct bt_conn_info info;
 	err = bt_conn_get_info(conn, &info);
 	if (err) {
-		printk("bt_conn_get_info() returned %d\n", err);
+		LOG_ERR("bt_conn_get_info() returned %d\n", err);
 		return;
 	}
 
 	double connection_interval = BT_GAP_US_TO_CONN_INTERVAL(info.le.interval_us) *1.25; // in ms
 	uint16_t supervision_timeout = info.le.timeout*10; // in ms
-	printk("Connection parameters: interval %.2f ms, latency %d intervals, timeout %d ms\n", connection_interval, info.le.latency, supervision_timeout);
+	LOG_INF("Connection parameters: interval %.2f ms, latency %d intervals, timeout %d ms\n", connection_interval, info.le.latency, supervision_timeout);
 
 }
 
 void disconnected_cb(struct bt_conn *conn, uint8_t reason)
 {
-    printk("Disconnected. Reason %d\n", reason);
+    LOG_INF("Disconnected. Reason %d\n", reason);
     bt_conn_unref(my_conn);
 }
 
@@ -134,11 +137,11 @@ static void adv_work_handler(struct k_work *work)
 	int err = bt_le_adv_start(BT_LE_ADV_CONN_FAST_1, ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
 
 	if (err) {
-		printk("Advertising failed to start (err %d)\n", err);
+		LOG_ERR("Advertising failed to start (err %d)\n", err);
 		return;
 	}
 
-	printk("Advertising successfully started\n");
+	LOG_INF("Advertising successfully started\n");
 }
 
 //Submit resume advertising work structure to system work queue 
@@ -150,7 +153,7 @@ static void advertising_start(void)
 //Callback for when the device is prepared for a new connection
 static void recycled_cb(void)
 {
-	printk("Connection object available from previous conn. Disconnect is complete!\n");
+	LOG_INF("Connection object available from previous conn. Disconnect is complete!\n");
 	advertising_start();
 }
 
@@ -159,7 +162,7 @@ void le_param_updated_cb(struct bt_conn *conn, uint16_t interval, uint16_t laten
 {
     double connection_interval = interval*1.25;         // in ms
     uint16_t supervision_timeout = timeout*10;          // in ms
-    printk("Connection parameters updated: interval %.2f ms, latency %d intervals, timeout %d ms\n", connection_interval, latency, supervision_timeout);
+    LOG_INF("Connection parameters updated: interval %.2f ms, latency %d intervals, timeout %d ms\n", connection_interval, latency, supervision_timeout);
 }
 
 //Updated PHY parameters callback
@@ -167,13 +170,13 @@ void le_phy_updated_cb(struct bt_conn *conn, struct bt_conn_le_phy_info *param)
 {
     // PHY Updated
     if (param->tx_phy == BT_CONN_LE_TX_POWER_PHY_1M) {
-        printk("PHY updated. New PHY: 1M\n");
+        LOG_INF("PHY updated. New PHY: 1M\n");
     }
     else if (param->tx_phy == BT_CONN_LE_TX_POWER_PHY_2M) {
-        printk("PHY updated. New PHY: 2M\n");
+        LOG_INF("PHY updated. New PHY: 2M\n");
     }
     else if (param->tx_phy == BT_CONN_LE_TX_POWER_PHY_CODED_S8) {
-        printk("PHY updated. New PHY: Long Range\n");
+        LOG_INF("PHY updated. New PHY: Long Range\n");
     }
 }
 
@@ -184,7 +187,7 @@ void le_data_len_updated_cb(struct bt_conn *conn, struct bt_conn_le_data_len_inf
     uint16_t tx_time    = info->tx_max_time;
     uint16_t rx_len     = info->rx_max_len;
     uint16_t rx_time    = info->rx_max_time;
-    printk("Data length updated. Length %d/%d bytes, time %d/%d us\n", tx_len, rx_len, tx_time, rx_time);
+    LOG_INF("Data length updated. Length %d/%d bytes, time %d/%d us\n", tx_len, rx_len, tx_time, rx_time);
 }
 
 
@@ -195,9 +198,9 @@ static void security_changed_cb(struct bt_conn *conn, bt_security_t level, enum 
 	bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
 
 	if (!err) {
-		printk("Security changed: %s level %u\n", addr, level);
+		LOG_INF("Security changed: %s level %u\n", addr, level);
 	} else {
-		printk("Security failed: %s level %u err %d\n", addr, level,
+		LOG_INF("Security failed: %s level %u err %d\n", addr, level,
 			err);
 	}
 }
@@ -222,21 +225,21 @@ void init_BLE(void)
     bt_addr_le_t addr;
     err = bt_addr_le_from_str("FF:EE:DD:CC:BB:AA", "random", &addr);
     if (err) {
-        printk("Invalid BT address (err %d)\n", err);
+        LOG_ERR("Invalid BT address (err %d)\n", err);
     }
 
     err = bt_id_create(&addr, NULL);
     if (err < 0) {
-        printk("Creating new ID failed (err %d)\n", err);
+        LOG_ERR("Creating new ID failed (err %d)\n", err);
     }
 
 	//Enable BLE
 	err = bt_enable(NULL);
 	if (err) {
-		printk("Bluetooth init failed (err %d)\n", err);
+		LOG_ERR("Bluetooth init failed (err %d)\n", err);
 		return;
 	}
-	printk("BLE initialized\n");
+	LOG_INF("BLE initialized\n");
 
 	//Start BLE advertising
 	//Now it is used through the system workqueue, that way the callback for recycled is reused

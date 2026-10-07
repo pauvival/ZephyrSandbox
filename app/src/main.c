@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <zephyr/kernel.h>
+#include <zephyr/logging/log.h>
 
 //User-made libraries
 #include "bluetooth_mg.h"
@@ -13,10 +14,11 @@
 //1000 msec = 1 sec
 #define SLEEP_TIME_MS   25
 
+LOG_MODULE_REGISTER(app,LOG_LEVEL_DBG);
 
 int main(void)
 {
-	printf("Hello World! %s\n", CONFIG_BOARD_TARGET);
+	LOG_INF("Hello World! %s\n", CONFIG_BOARD_TARGET);
 
 	leds_init();
 	init_BLE();
