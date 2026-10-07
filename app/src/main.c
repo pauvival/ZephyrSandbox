@@ -14,7 +14,14 @@
 //1000 msec = 1 sec
 #define SLEEP_TIME_MS   25
 
+
+#define STACKSIZE 1024
+#define THREAD0_PRIORITY 7
+#define THREAD1_PRIORITY 7
+
 LOG_MODULE_REGISTER(app,LOG_LEVEL_DBG);
+
+
 
 int main(void)
 {
@@ -34,8 +41,39 @@ int main(void)
 			leds_set_all();
 		}
 
-		k_msleep(500);
+		LOG_INF("LED CONTROL THREAD!\n");
+
+		k_msleep(1000);
 	}
 	
 	return 0;
 }
+
+int thread0(void){
+
+	while(1)
+	{
+		LOG_INF("I am thread 0!\n");
+		k_msleep(1000);
+	}
+	
+	return 0;
+
+}
+
+int thread1(void){
+
+	while(1)
+	{
+		LOG_INF("I am thread 1!\n");
+		k_msleep(1000);
+	}
+
+	return 0;
+	
+}
+
+K_THREAD_DEFINE(thread0_id, STACKSIZE, thread0, NULL, NULL, NULL,
+ THREAD0_PRIORITY, 0, 0);
+K_THREAD_DEFINE(thread1_id, STACKSIZE, thread1, NULL, NULL, NULL,
+ THREAD1_PRIORITY, 0, 0);
